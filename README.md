@@ -78,8 +78,8 @@ Example:
 Providers
 ---------
 Currently the only supported providers are:
-s3    - Amazon S3
-cf    - Rackspace Cloud
+ * s3    - Amazon S3
+ * cf    - Rackspace Cloud
 
 Extended example
 ----------------

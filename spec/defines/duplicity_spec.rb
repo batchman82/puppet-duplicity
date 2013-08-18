@@ -120,7 +120,7 @@ describe 'duplicity', :type => :define do
 
     it "should pass the correct cloud backend" do
       should contain_duplicity__job(title) \
-        .with_cloud('cf')
+        .with_provider('cf')
     end
   end
 

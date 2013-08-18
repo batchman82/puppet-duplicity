@@ -45,13 +45,13 @@ describe 'duplicity::monitored_job' do
 
     let(:params) {
       {
-        :bucket       => 'somebucket',
-        :directory    => '/etc/',
-        :dest_id      => 'some_id',
+        :bucket            => 'somebucket',
+        :directory         => '/etc/',
+        :dest_id           => 'some_id',
         :execution_timeout => '24h',
-        :dest_key     => 'some_key',
-        :hour         => 5,
-        :minute       => 23
+        :dest_key          => 'some_key',
+        :hour              => 5,
+        :minute            => 23
       }
     }
 
@@ -96,7 +96,7 @@ describe 'duplicity::monitored_job' do
     let(:params) {
       {
         :execution_timeout => '24h',
-        :ensure       => 'absent'
+        :ensure            => 'absent'
       }
     }
 
@@ -125,7 +125,7 @@ describe 'duplicity::monitored_job' do
 
     it "should pass the correct cloud backend" do
       should contain_duplicity__job(title) \
-        .with_cloud('cf')
+        .with_provider('cf')
     end
   end
 
