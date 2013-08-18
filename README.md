@@ -78,8 +78,63 @@ Example:
 Providers
 ---------
 Currently the only supported providers are:
- * s3    - Amazon S3
+ * file  - Local file location
+ * ssh   - Over SSH
+ * s3    - Amazon S3 (default)
  * cf    - Rackspace Cloud
+
+Local target
+------------
+Local backup, to for example an NFS mount.
+
+Example:
+
+    duplicity { 'my_local_backup':
+      provider  => 'file',
+      directory => '/root/db-backup',
+      target    => '/mnt/a/mounted/place',
+    }
+
+SSH target
+----------
+Backup over SSH. This is using the scp protocol for now, 
+maybe using rsync+ssh would be better?
+Remember that SSH private key has to be owned by the user running ssh.
+It must also be USER readable ONLY, otherwise SSH will reject it.
+
+Example:
+
+    duplicity { 'my_local_backup':
+      provider  => 'ssh',
+      directory => '/accessible/path',
+      target    => 'remote.host.com//home/remoteuser/backup',
+      dest_id   => 'remoteuser',
+      dest_key  => '~/.ssh/id_rsa',
+    }
+
+This has the same result, note the '/' instead of '//':
+
+    duplicity { 'my_local_backup':
+      provider  => 'ssh',
+      directory => '/accessible/path',
+      target    => 'remote.host.com/backup',
+      dest_id   => 'remoteuser',
+      dest_key  => '~/.ssh/id_rsa',
+    }
+
+Different cron user
+-------------------
+This will be run as 'localuser' in cron, so make sure the directory to 
+backup is accessible by that user:
+
+    duplicity { 'my_local_backup':
+      provider  => 'ssh',
+      directory => '/accessible/path',
+      target    => 'remote.host.com/backup',
+      dest_id   => 'remoteuser',
+      cron_user => 'localuser',
+      dest_key  => '~/.ssh/id_rsa',
+    }
 
 Extended example
 ----------------

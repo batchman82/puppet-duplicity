@@ -21,7 +21,7 @@ describe 'duplicity::params', :type => :class do
       'ensure' => 'directory',
       'owner'  => 'root',
       'group'  => 'root',
-      'mode'   => '0750'
+      'mode'   => '0755'
     )
   end
 end

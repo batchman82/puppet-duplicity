@@ -3,6 +3,7 @@ define duplicity(
   $ensure             = 'present',
   $directory          = undef,
   $bucket             = undef,
+  $target             = undef,
   $dest_id            = undef,
   $dest_key           = undef,
   $folder             = undef,
@@ -13,6 +14,7 @@ define duplicity(
   $full_if_older_than = undef,
   $pre_command        = undef,
   $remove_older_than  = undef,
+  $cron_user          = undef,
 ) {
 
   include duplicity::params
@@ -25,6 +27,7 @@ define duplicity(
     spoolfile          => $spoolfile,
     directory          => $directory,
     bucket             => $bucket,
+    target             => $target,
     dest_id            => $dest_id,
     dest_key           => $dest_key,
     folder             => $folder,
@@ -33,6 +36,7 @@ define duplicity(
     full_if_older_than => $full_if_older_than,
     pre_command        => $pre_command,
     remove_older_than  => $remove_older_than,
+    cron_user          => $cron_user,
   }
 
   $_hour = $hour ? {
@@ -48,7 +52,7 @@ define duplicity(
   cron { $name :
     ensure  => $ensure,
     command => $spoolfile,
-    user    => 'root',
+    user    => $cron_user,
     minute  => $_minute,
     hour    => $_hour,
   }

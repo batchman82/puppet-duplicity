@@ -5,5 +5,6 @@ class duplicity::defaults {
   $hour               = 0
   $minute             = 0
   $full_if_older_than = '30D'
+  $cron_user          = 'root'
   $job_spool          = '/var/spool/duplicity'
 }

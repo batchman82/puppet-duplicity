@@ -1,4 +1,3 @@
+ * implement restore
  * write restore documentation
- * guard-rspec
- * add support for local provider
- * add support for ssh provider
+ * update spec

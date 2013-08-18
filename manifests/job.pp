@@ -4,6 +4,7 @@ define duplicity::job(
   $ensure             = 'present',
   $directory          = undef,
   $bucket             = undef,
+  $target             = undef,
   $dest_id            = undef,
   $dest_key           = undef,
   $folder             = undef,
@@ -12,7 +13,8 @@ define duplicity::job(
   $full_if_older_than = undef,
   $pre_command        = undef,
   $remove_older_than  = undef,
-  $default_exit_code  = undef
+  $default_exit_code  = undef,
+  $cron_user          = undef,
 ) {
 
   include duplicity::params
@@ -21,6 +23,11 @@ define duplicity::job(
   $_bucket = $bucket ? {
     undef   => $duplicity::params::bucket,
     default => $bucket
+  }
+
+  $_target = $target ? {
+    undef   => $duplicity::params::target,
+    default => $target
   }
 
   $_dest_id = $dest_id ? {
@@ -78,58 +85,82 @@ define duplicity::job(
     default => $remove_older_than,
   }
 
-  if !($_provider in [ 's3', 'cf' ]) {
+  if !($_provider in [ 'file', 'ssh', 's3', 'cf' ]) {
     fail('$provider required and supports:
+file  - Local file location
+ssh   - Over SSH
 s3    - Amazon S3
 cf    - Rackspace Cloud Files')
   }
 
   case $ensure {
-    'present' : {
+    present : {
 
       if !$directory {
         fail('directory parameter has to be passed if ensure != absent')
       }
-
-      if !$_bucket {
-        fail('You need to define a container/bucket name!')
+      
+      if ($_provider in [ 'file', 'ssh' ]) {
+        if !$_bucket {
+          fail('You need to define a target name!')
+        }
       }
-
-      if (!$_dest_id or !$_dest_key) {
-        fail('You need to set all of your key variables: dest_id, dest_key')
+      
+      if ($_provider in [ 's3', 'cf' ]) {
+        if !$_bucket {
+          fail('You need to define a container/bucket name!')
+        }
       }
-
+      if ($_provider in [ 'ssh', 's3', 'cf' ]) {
+        if (!$_dest_id or !$_dest_key) {
+          fail('You need to set all of your key variables: dest_id, dest_key')
+        }
+      }
     }
 
-    'absent' : {
+    absent : {
     }
     default : {
       fail('ensure parameter must be absent or present')
     }
   }
-
-  $_cfhash = { 'CLOUDFILES_USERNAME' => $_dest_id, 'CLOUDFILES_APIKEY'     => $_dest_key,}
-  $_awshash = { 'AWS_ACCESS_KEY_ID'  => $_dest_id, 'AWS_SECRET_ACCESS_KEY' => $_dest_key,}
-
+  
+  $_emptyhash = { }
+  $_cfhash = {  'CLOUDFILES_USERNAME'    => $_dest_id,
+                'CLOUDFILES_APIKEY'      => $_dest_key, }
+  $_awshash = { 'AWS_ACCESS_KEY_ID'      => $_dest_id,
+                'AWS_SECRET_ACCESS_KEY'  => $_dest_key, }
+  
+  $_extra_param = $_provider ? {
+    'file' => '',
+    'ssh'  => "--ssh-options='-i ${_dest_key}'",
+    'cf'   => '',
+    's3'   => '--s3-use-new-style',
+  }
+  
   $_environment = $_provider ? {
-    'cf' => $_cfhash,
-    's3' => $_awshash,
+    'file' => $_emptyhash,
+    'ssh'  => $_emptyhash,
+    'cf'   => $_cfhash,
+    's3'   => $_awshash,
   }
 
   $_target_url = $_provider ? {
-    'cf' => "'cf+http://${_bucket}'",
-    's3' => "'s3+http://${_bucket}/${_folder}/${name}/'"
+    'file' => "'file://${_target}'",
+    'ssh'  => "'scp://${_dest_id}@${_target}'",
+    'cf'   => "'cf+http://${_bucket}'",
+    's3'   => "'s3+http://${_bucket}/${_folder}/${name}/'"
   }
 
   $_remove_older_than_command = $_remove_older_than ? {
     undef   => '',
-    default => " && duplicity remove-older-than ${_remove_older_than} --s3-use-new-style ${_encryption} --force ${_target_url}"
+    default => " && duplicity remove-older-than ${_remove_older_than} ${_extra_param} ${_encryption} --force ${_target_url}"
   }
 
   file { $spoolfile:
     ensure  => $ensure,
     content => template('duplicity/file-backup.sh.erb'),
-    owner   => 'root',
+    owner   => $cron_user,
     mode    => '0700',
   }
 
