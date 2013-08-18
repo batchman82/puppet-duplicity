@@ -90,4 +90,4 @@ If you want to only install the packages, include duplicity:packages
 Restore
 -------
 
-Nobody wants backup, everybode wants restore.
+Nobody wants backup, everybode wants restore. 
