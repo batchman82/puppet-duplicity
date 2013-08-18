@@ -110,11 +110,11 @@ describe 'duplicity', :type => :define do
 
     let(:params) {
       {
-        :bucket       => 'somebucket',
-        :directory    => '/etc/',
-        :dest_id  => 'some_id',
-        :dest_key => 'some_key',
-        :cloud    => 'cf'
+        :bucket    => 'somebucket',
+        :directory => '/etc/',
+        :dest_id   => 'some_id',
+        :dest_key  => 'some_key',
+        :provider  => 'cf'
       }
     }
 

@@ -10,7 +10,7 @@ describe 'duplicity::monitored_job' do
     :minute            => 0,
     :hour              => 0,
     :execution_timeout => '24h',
-    :cloud             => 's3',
+    :provider          => 's3',
   } }
 
   fqdn = 'somehost.domaindomain.org'
@@ -114,12 +114,12 @@ describe 'duplicity::monitored_job' do
 
     let(:params) {
       {
-        :bucket       => 'somebucket',
-        :directory    => '/etc/',
-        :dest_id  => 'some_id',
-        :dest_key => 'some_key',
+        :bucket            => 'somebucket',
+        :directory         => '/etc/',
+        :dest_id           => 'some_id',
+        :dest_key          => 'some_key',
         :execution_timeout => '24h',
-        :cloud    => 'cf'
+        :provider          => 'cf'
       }
     }
 

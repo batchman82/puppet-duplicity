@@ -38,7 +38,7 @@ describe 'duplicity::job' do
         :directory => '/etc/',
         :dest_id   => 'some_id',
         :dest_key  => 'some_key',
-        :cloud     => 'cf',
+        :provider  => 'cf',
         :spoolfile => spoolfile,
       }
     }

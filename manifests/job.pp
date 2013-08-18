@@ -7,7 +7,7 @@ define duplicity::job(
   $dest_id            = undef,
   $dest_key           = undef,
   $folder             = undef,
-  $cloud              = undef,
+  $provider           = undef,
   $pubkey_id          = undef,
   $full_if_older_than = undef,
   $pre_command        = undef,
@@ -38,9 +38,9 @@ define duplicity::job(
     default => $folder
   }
 
-  $_cloud = $cloud ? {
-    undef   => $duplicity::params::cloud,
-    default => $cloud
+  $_provider = $provider ? {
+    undef   => $duplicity::params::provider,
+    default => $provider
   }
 
   $_pubkey_id = $pubkey_id ? {
@@ -78,8 +78,10 @@ define duplicity::job(
     default => $remove_older_than,
   }
 
-  if !($_cloud in [ 's3', 'cf' ]) {
-    fail('$cloud required and at this time supports s3 for amazon s3 and cf for Rackspace cloud files')
+  if !($_provider in [ 's3', 'cf' ]) {
+    fail('$provider required and supports:
+s3    - Amazon S3
+cf    - Rackspace Cloud Files')
   }
 
   case $ensure {
@@ -109,12 +111,12 @@ define duplicity::job(
   $_cfhash = { 'CLOUDFILES_USERNAME' => $_dest_id, 'CLOUDFILES_APIKEY'     => $_dest_key,}
   $_awshash = { 'AWS_ACCESS_KEY_ID'  => $_dest_id, 'AWS_SECRET_ACCESS_KEY' => $_dest_key,}
 
-  $_environment = $_cloud ? {
+  $_environment = $_provider ? {
     'cf' => $_cfhash,
     's3' => $_awshash,
   }
 
-  $_target_url = $_cloud ? {
+  $_target_url = $_provider ? {
     'cf' => "'cf+http://${_bucket}'",
     's3' => "'s3+http://${_bucket}/${_folder}/${name}/'"
   }

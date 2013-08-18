@@ -5,6 +5,10 @@ Puppet Duplicity
 
 Install Duplicity and quickly setup backup to Amazon S3
 
+Important change
+----------------
+The parameter 'cloud' has been changed to 'provider' and config files have to be adapted accordingly.
+
 Basic Usage
 -----------
     node 'kellerautomat' {
@@ -69,6 +73,64 @@ Example:
       duplicity { 'blubbi' :
         directory => '/home/soenke/projects/test-puppet',
       }
+    }
+
+Providers
+---------
+Currently the only supported providers are:
+s3    - Amazon S3
+cf    - Rackspace Cloud
+
+Extended example
+----------------
+This is a more extended example, some parts are Ubuntu specific.
+
+Example:
+
+    class defaults {
+      # Ubuntu specific, used to get Duplicity 0.6.21 from ppa
+      package { 'python-software-properties': ensure => installed }
+      exec { '/usr/bin/add-apt-repository -y ppa:duplicity-team/ppa':
+        creates => "/etc/apt/sources.list.d/duplicity-team-ppa-${::lsbdistcodename}.list",
+        require => Package[ 'python-software-properties' ]
+      }
+      exec { "duplicity-team-update":
+        command     => "/usr/bin/apt-get update",
+        require     => Exec[ '/usr/bin/add-apt-repository -y ppa:duplicity-team/ppa' ],
+        refreshonly => true,
+      }
+      Package <| title == 'duplicity' |> { 
+        ensure  => '0.6.21-0ubuntu0ppa21~precise1',
+        require => Exec[ 'duplicity-team-update' ],
+      }
+      
+      # Values with defaults does not need to be set
+      class { 'duplicity::params' :
+        bucket             => 'test-backup-soenke',
+        dest_id            => 'someid',
+        dest_key           => 'somekey',
+        remove_older_than  => '6M',  # default = undef
+        full_if_older_than => '15D', # default = '30D'
+        provider           => 'cf',  # default = 's3'
+        hour               => 1,     # default = 0
+        minute             => 5,     # default = 0
+        job_spool          => '/var/spool/duplicity'  # default = '/var/spool/duplicity'
+        require            => Package[ 'duplicity' ], # Not really needed, but I prefer being explicit
+      }
+    }
+
+    node 'kellerautomat' {
+     
+      include defaults
+      
+      duplicity { 'blubbi' :
+        directory => '/home/soenke/projects/test-puppet',
+        hour      => 3, # Overriding default again
+        minute    => 7, # Overriding default again
+      }
+      
+      # To remove the cron job, uncomment this:
+      #Cron <| title == 'blubbi' |> { ensure => absent }
     }
 
 Crypted Backups
