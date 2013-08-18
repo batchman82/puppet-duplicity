@@ -3,7 +3,7 @@ Puppet Duplicity
 
 [![Build Status](https://travis-ci.org/Jimdo/puppet-duplicity.png)](https://travis-ci.org/Jimdo/puppet-duplicity)
 
-Install duplicity and quickly setup backup to amazon s3
+Install Duplicity and quickly setup backup to Amazon S3
 
 Basic Usage
 -----------
@@ -11,9 +11,9 @@ Basic Usage
 
       duplicity { 'a_backup':
         directory => '/home/soenke/',
-        bucket => 'test-backup-soenke',
-        dest_id => 'someid',
-        dest_key => 'somekey'
+        bucket    => 'test-backup-soenke',
+        dest_id   => 'someid',
+        dest_key  => 'somekey'
       }
     }
 
@@ -25,10 +25,10 @@ For example: do a mysqldump before running duplicity.
 
     duplicity { 'my_database':
       pre_command => 'mysqldump my_database > /my_backupdir/my_database.sql',
-      directory => '/my_backupdir',
-      bucket => 'test-backup',
-      dest_id => 'someid',
-      dest_key => 'somekey',
+      directory   => '/my_backupdir',
+      bucket      => 'test-backup',
+      dest_id     => 'someid',
+      dest_key    => 'somekey',
     }
 
 Removing Old Backups
@@ -38,10 +38,10 @@ To remove old backups after a successful backup, you can use the ```remove_older
 For example: Remove backups older than 6 months:
 
     duplicity { 'my_backup':
-      directory => '/root/db-backup',
-      bucket => 'test-backup',
-      dest_id => 'someid',
-      dest_key => 'somekey',
+      directory         => '/root/db-backup',
+      bucket            => 'test-backup',
+      dest_id           => 'someid',
+      dest_key          => 'somekey',
       remove_older_than => '6M',
     }
 
@@ -55,9 +55,9 @@ Example:
 
     class defaults {
       class { 'duplicity::params' :
-        bucket => 'test-backup-soenke',
-        dest_id => 'someid',
-        dest_key => 'somekey',
+        bucket            => 'test-backup-soenke',
+        dest_id           => 'someid',
+        dest_key          => 'somekey',
         remove_older_than => '6M',
       }
     }

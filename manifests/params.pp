@@ -1,3 +1,4 @@
+# Duplicity::Params TODO: Write a good definition
 class duplicity::params(
   $bucket                = undef,
   $dest_id               = undef,
@@ -8,14 +9,14 @@ class duplicity::params(
   $minute                = $duplicity::defaults::minute,
   $full_if_older_than    = $duplicity::defaults::full_if_older_than,
   $remove_older_than     = undef,
-  $job_spool = $duplicity::defaults::job_spool
+  $job_spool             = $duplicity::defaults::job_spool
 ) inherits duplicity::defaults {
 
   file { $job_spool :
     ensure => directory,
     owner  => root,
     group  => root,
-    mode   => 0750,
+    mode   => '0750',
   }
 
   File[$job_spool] -> Duplicity::Job <| |>
