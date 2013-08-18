@@ -1,9 +1,10 @@
 Puppet Duplicity
 ================
 
+Currently the tests are broken, but the code is fine, just haven't had time to update them:
 [![Build Status](https://travis-ci.org/batchman82/puppet-duplicity.png)](https://travis-ci.org/batchman82/puppet-duplicity)
 
-Install Duplicity and quickly setup backup to Amazon S3
+Install Duplicity and quickly setup backup to Amazon S3, Rackspace Cloud Files, SSH and local backup.
 
 Important change
 ----------------
@@ -11,6 +12,7 @@ The parameter 'cloud' has been changed to 'provider' and config files have to be
 
 Basic Usage
 -----------
+
     node 'kellerautomat' {
 
       duplicity { 'a_backup':
@@ -77,6 +79,7 @@ Example:
 
 Providers
 ---------
+
 Currently the only supported providers are:
  * file  - Local file location
  * ssh   - Over SSH
@@ -85,6 +88,7 @@ Currently the only supported providers are:
 
 Local target
 ------------
+
 Local backup, to for example an NFS mount.
 
 Example:
@@ -97,9 +101,9 @@ Example:
 
 SSH target
 ----------
-Backup over SSH. This is using the scp protocol for now, 
-maybe using rsync+ssh would be better?
-Remember that SSH private key has to be owned by the user running ssh.
+
+Backup over SSH. This is using the scp protocol for now, maybe using rsync+ssh would be better?
+Remember that SSH private key has to be owned by the user running ssh. 
 It must also be USER readable ONLY, otherwise SSH will reject it.
 
 Example:
@@ -124,8 +128,8 @@ This has the same result, note the '/' instead of '//':
 
 Different cron user
 -------------------
-This will be run as 'localuser' in cron, so make sure the directory to 
-backup is accessible by that user:
+
+This will be run as 'localuser' in cron, so make sure the directory to backup is accessible by that user:
 
     duplicity { 'my_local_backup':
       provider  => 'ssh',
@@ -138,6 +142,7 @@ backup is accessible by that user:
 
 Extended example
 ----------------
+
 This is a more extended example, some parts are Ubuntu specific.
 
 Example:
@@ -188,10 +193,10 @@ Example:
       #Cron <| title == 'blubbi' |> { ensure => absent }
     }
 
-Crypted Backups
----------------
+Encrypted Backups
+-----------------
 
-In order to save crypted backups this module is able to make use of pubkey encryption.
+In order to save encrypted backups this module is able to make use of pubkey encryption.
 This means you specify a pubkey and restores are only possible with the correspondending
 private key. This ensures no secret credentials fly around on the machines. Incremental backups
 work as long as the metadata cache on the node is up to date. Duplicity will force a full backup
@@ -207,4 +212,22 @@ If you want to only install the packages, include duplicity:packages
 Restore
 -------
 
-Nobody wants backup, everybode wants restore. 
+Nobody wants backup, everybode wants restore. The path in 'directory' has to be given WITHOUT the first '/'.
+Restore will only run if the target directory does not exist.
+And here are the restore examples:
+
+    duplicity::restore { 'my_backup':
+      provider  => 's3',
+      directory => 'root/db-backup',
+      bucket    => 'test-backup',
+      dest_id   => 'someid',
+      dest_key  => 'somekey',
+      target    => '/root/restored-db-backup',
+    }
+
+    duplicity { 'my_local_backup':
+      provider  => 'file',
+      directory => 'root/db-backup',
+      source    => '/mnt/a/mounted/place',
+      target    => '/root/restored-db-backup',
+    }

@@ -2,10 +2,12 @@
 class duplicity::params(
   $bucket             = undef,
   $target             = undef,
+  $source             = undef, # Only used by restore
   $dest_id            = undef,
   $dest_key           = undef,
   $provider           = $duplicity::defaults::provider,
   $pubkey_id          = undef,
+  $privkey_id         = undef, # Only used by restore
   $hour               = $duplicity::defaults::hour,
   $minute             = $duplicity::defaults::minute,
   $full_if_older_than = $duplicity::defaults::full_if_older_than,
