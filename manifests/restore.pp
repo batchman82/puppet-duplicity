@@ -142,7 +142,8 @@ cf    - Rackspace Cloud Files')
     command     => "duplicity --file-to-restore ${directory} ${_extra_param} ${_encryption} ${_source_url} ${target}",
     path        => '/usr/bin:/usr/sbin:/bin',
     environment => $_environment,
-    creates     => $target
+    creates     => $target,
+    require     => Package[ 'duplicity' ],
   }
   
   $_remove_older_than_command = $_remove_older_than ? {
